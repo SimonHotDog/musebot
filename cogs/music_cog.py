@@ -121,6 +121,11 @@ class Music(commands.Cog):
             if not self.playing:
                 await self.play_music(ctx)
 
+    #Plays the "Pirates of the Carribean" track "He's a Pirate"
+    @commands.command(pass_context=True)
+    async def pirate(self, ctx):
+        await self.p(ctx, "https://www.youtube.com/watch?v=BuYf0taXoNw")
+
     @commands.command(pass_context=True)
     async def s(self, ctx):
         if await self.user_is_connected(ctx) and self.voice_channel.is_connected() and self.playing:
