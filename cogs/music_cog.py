@@ -2,9 +2,12 @@
 
 import discord
 import asyncio
+import random
 from discord.ext import commands
 from yt_dlp import YoutubeDL
 
+with open('music/shanties.txt') as f:
+    lines = f.readlines()
 
 class Music(commands.Cog):
     def __init__(self, bot):
@@ -14,6 +17,7 @@ class Music(commands.Cog):
         self.loop = False
         self.current_song = None
         self.voice_channel = None
+        self.shanty_list = lines
         self.YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True'}
         self.YDL_OPTIONS_PLAYLIST_LENGTH = {'flatplaylist': 'True', 'playlistend': 1}
         self.FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
@@ -57,6 +61,7 @@ class Music(commands.Cog):
                                                                                      self.bot.loop))
         elif len(self.queue) == 0 or not self.voice_channel.is_playing():
             self.playing = False
+            await self.leave(ctx)
             
     async def load_playlist(self, ctx, link):
         songs = []
@@ -126,6 +131,12 @@ class Music(commands.Cog):
     async def pirate(self, ctx):
         await self.p(ctx, "https://www.youtube.com/watch?v=BuYf0taXoNw")
 
+    #Plays a random sea shanty defined in "music/shanties.txt"
+    @commands.command(pass_context=True)
+    async def shanty(self, ctx):
+        random_shanty = random.choice(self.shanty_list)
+        await self.p(ctx, random_shanty)
+
     @commands.command(pass_context=True)
     async def s(self, ctx):
         if await self.user_is_connected(ctx) and self.voice_channel.is_connected() and self.playing:
@@ -158,7 +169,7 @@ class Music(commands.Cog):
     @commands.command(pass_context=True)
     async def leave(self, ctx):
         if await self.user_is_connected(ctx) and self.voice_channel.is_connected():
-            await ctx.send("```Bye bye!```")
+            #await ctx.send("```Bye bye!```")
             self.queue = []
             self.loop = False
             self.voice_channel.stop()
